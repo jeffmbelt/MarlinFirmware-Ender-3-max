@@ -172,7 +172,7 @@
 // Heated Bed Bang-Bang options
 //
 #if DISABLED(PIDTEMPBED)
-  #define BED_CHECK_INTERVAL 500    // (ms) Interval between checks in bang-bang control
+  #define BED_CHECK_INTERVAL 100    // (ms) Interval between checks in bang-bang control
   #if ENABLED(BED_LIMIT_SWITCHING)
     #define BED_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > BED_HYSTERESIS
   #endif
@@ -549,7 +549,7 @@
   #endif
 #endif
 
-#if (ENABLED(EZBOARD) || ENABLED(EZBOARD_V2)) && DISABLED(USE_CONTROLLER_FAN)
+#if (ENABLED(EZBOARD) || ENABLED(EZBOARD_V2)) && DISABLED(USE_CONTROLLER_FAN) && DISABLED(EZBOARD_FAN2_HOTEND_MODE)
   #define USE_CONTROLLER_FAN
   #if ENABLED(EZBOARD_V2)
     #define CONTROLLER_FAN_PIN       PC7
@@ -694,8 +694,16 @@
     #define E0_AUTO_FAN_PIN 44
   #elif ENABLED(SKR_E3_MINI_V3_0)
     #define E0_AUTO_FAN_PIN PB15
-  #elif ENABLED(ENDER3_S1)
+  #elif ANY(ENDER3_S1, ENDER3_S1_PRO, ENDER3_S1_PLUS)
     #define E0_AUTO_FAN_PIN PC0
+  #elif ENABLED(TINA2)
+    #define E0_AUTO_FAN_PIN 9
+  #elif ENABLED(EZBOARD_FAN2_HOTEND_MODE)
+    #if ENABLED(EZBOARD_V2)
+      #define E0_AUTO_FAN_PIN       PC7
+    #else
+      #define E0_AUTO_FAN_PIN       P1_22
+    #endif
   #else
     #define E0_AUTO_FAN_PIN -1
   #endif
@@ -713,8 +721,12 @@
 #define COOLER_AUTO_FAN_PIN -1
 #define COOLER_FAN_PIN -1
 
-#define EXTRUDER_AUTO_FAN_TEMPERATURE 50
-#define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
+#ifndef EXTRUDER_AUTO_FAN_TEMPERATURE
+  #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
+#endif
+#ifndef EXTRUDER_AUTO_FAN_SPEED
+  #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
+#endif
 #define CHAMBER_AUTO_FAN_TEMPERATURE 30
 #define CHAMBER_AUTO_FAN_SPEED 255
 #define COOLER_AUTO_FAN_TEMPERATURE 18
@@ -1104,7 +1116,7 @@
   #define RESTORE_LEVELING_AFTER_G35    // Enable to restore leveling setup after operation
   //#define REPORT_TRAMMING_MM          // Report Z deviation (mm) for each point relative to the first
 
-  //#define ASSISTED_TRAMMING_WIZARD    // Add a Tramming Wizard to the LCD menu
+  #define ASSISTED_TRAMMING_WIZARD    // Add a Tramming Wizard to the LCD menu
 
   //#define ASSISTED_TRAMMING_WAIT_POSITION { X_CENTER, Y_CENTER, 30 } // Move the nozzle out of the way for adjustment
 
@@ -1384,7 +1396,7 @@
 
   // Add Probe Z Offset calibration to the Z Probe Offsets menu
   #if HAS_BED_PROBE
-    //#define PROBE_OFFSET_WIZARD
+    #define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
       //
       // Enable to init the Probe Z-Offset when starting the Wizard.
@@ -1647,7 +1659,9 @@
   //#define UTF_FILENAME_SUPPORT
 
   // This allows hosts to request long names for files and folders with M33
-  //#define LONG_FILENAME_HOST_SUPPORT
+  #if ENABLED(BTT_TOUCH_SCREEN)
+    #define LONG_FILENAME_HOST_SUPPORT
+  #endif
 
   // Enable this option to scroll long filenames in the SD card menu
   #if NONE(SPACE_SAVER, DWIN_CREALITY_LCD, SPACE_SAVER_2560)
@@ -1674,7 +1688,9 @@
   /**
    * Auto-report SdCard status with M27 S<seconds>
    */
-  //#define AUTO_REPORT_SD_STATUS
+  #if ENABLED(BTT_TOUCH_SCREEN)
+    #define AUTO_REPORT_SD_STATUS
+  #endif
 
   /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
@@ -2463,7 +2479,9 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-//#define EMERGENCY_PARSER
+#if ENABLED(BTT_TOUCH_SCREEN)
+  #define EMERGENCY_PARSER
+#endif
 
 /**
  * Realtime Reporting (requires EMERGENCY_PARSER)
@@ -2499,7 +2517,9 @@
 #define SERIAL_OVERRUN_PROTECTION
 
 // For serial echo, the number of digits after the decimal point
-//#define SERIAL_FLOAT_PRECISION 4
+#if ENABLED(BTT_TOUCH_SCREEN)
+  #define SERIAL_FLOAT_PRECISION 4
+#endif
 
 // @section extras
 
@@ -2691,7 +2711,9 @@
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   //#define HOME_BEFORE_FILAMENT_CHANGE           // If needed, home before parking for filament change
 
-  //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+  #if ENABLED(BTT_TOUCH_SCREEN)
+    #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+  #endif
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
@@ -4023,7 +4045,9 @@
 /**
  * Auto-report position with M154 S<seconds>
  */
-//#define AUTO_REPORT_POSITION
+#if ENABLED(BTT_TOUCH_SCREEN)
+  #define AUTO_REPORT_POSITION
+#endif
 
 /**
  * Include capabilities in M115 output
@@ -4033,6 +4057,11 @@
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
     //#define M115_GEOMETRY_REPORT
   #endif
+#endif
+
+#if ENABLED(BTT_TOUCH_SCREEN)
+  #define EXTENDED_CAPABILITIES_REPORT
+  #define M115_GEOMETRY_REPORT
 #endif
 
 /**
@@ -4082,11 +4111,15 @@
 #endif
 
 // Extra options for the M114 "Current Position" report
-//#define M114_DETAIL         // Use 'M114` for details to check planner calculations
+#if ENABLED(BTT_TOUCH_SCREEN)
+  #define M114_DETAIL         // Use 'M114` for details to check planner calculations
+#endif
 //#define M114_REALTIME       // Real current position based on forward kinematics
 //#define M114_LEGACY         // M114 used to synchronize on every call. Enable if needed.
 
-//#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others)
+#if ENABLED(BTT_TOUCH_SCREEN)
+  #define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others)
+#endif
 
 /**
  * Set the number of proportional font spaces required to fill up a typical character space.
@@ -4258,12 +4291,14 @@
  * Host Prompt Support enables Marlin to use the host for user prompts so
  * filament runout and other processes can be managed from the host side.
  */
-#if DISABLED(DISABLE_ACTION_COMMANDS_SUPPORT)
+#if DISABLED(DISABLE_ACTION_COMMANDS_SUPPORT) || ENABLED(BTT_TOUCH_SCREEN)
   #define HOST_ACTION_COMMANDS
 #endif
 #if ENABLED(HOST_ACTION_COMMANDS)
   //#define HOST_PAUSE_M76
-  //#define HOST_PROMPT_SUPPORT
+  #if ENABLED(BTT_TOUCH_SCREEN)
+    #define HOST_PROMPT_SUPPORT
+  #endif
   //#define HOST_START_MENU_ITEM      // Add a menu item that tells the host to start
   //#define HOST_SHUTDOWN_MENU_ITEM   // Add a menu item that tells the host to shut down
 #endif

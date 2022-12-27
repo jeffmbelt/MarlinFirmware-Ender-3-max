@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.48"
+#define UNIFIED_VERSION "TH3D UFW 2.53"
 
 /**
  * ABL Probe Settings
@@ -14,6 +14,18 @@
 
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
+#endif
+#if ENABLED(SPRITE_EXTRUDER_18MM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -42, 0 }
+#endif
+#if ENABLED(ENDER7_OEM_MICRO_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { 38.5, 23.5, 0 }
+#endif
+#if ENABLED(TINA2_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { 28, 0, 0 }
 #endif
 #if ENABLED(ZYLTECH_GEAR_OEM)
   #define ABL_ENABLE
@@ -136,6 +148,10 @@
   #define ABL_ENABLE
 #endif
 #if ENABLED(SV01_OEM_MOUNT)
+  #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(SV03_OEM_MOUNT)
   #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
   #define ABL_ENABLE
 #endif
@@ -304,7 +320,7 @@
     #define Z_MIN_PROBE_ENDSTOP_INVERTING false
     #undef Z_MIN_ENDSTOP_INVERTING
     #define Z_MIN_ENDSTOP_INVERTING false
-  #elif (ENABLED(CR10S_PRO_STOCK_ABL) && ENABLED(CR10S_PRO)) || ENABLED(ENDER3_S1)
+  #elif (ENABLED(CR10S_PRO_STOCK_ABL) && ENABLED(CR10S_PRO)) || ANY(ENDER3_S1, ENDER3_S1_PRO, ENDER3_S1_PLUS)
     //Ender 3 S1 J713 header for Z Endstop is reverse logic via hardware for some reason. Need to invert the EZABL logic for it here.
     #undef Z_MIN_PROBE_ENDSTOP_INVERTING
     #define Z_MIN_PROBE_ENDSTOP_INVERTING false
@@ -326,11 +342,25 @@
  */
 
 #if ENABLED(ABL_ENABLE) && ENABLED(S_CURVE_ACCELERATION)
-  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
+  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile or comment out this error and continue at your own risk."
 #endif
 
 #if ENABLED(BLTOUCH) && DISABLED(CUSTOM_PROBE)
   #error "You must uncomment the CUSTOM_PROBE option in the EZABL probe mount section and then enter your mount offsets into the Custom Probe section."
+#endif
+
+#if BOTH(BTT_TOUCH_SCREEN, ABL_ENABLE)
+  #define G26_MESH_VALIDATION
+#endif
+
+#if ENABLED(G26_MESH_VALIDATION)
+  #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
+  #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
+  #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for G26.
+  #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
+  #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
+  #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
+  #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
 #endif
 
 /**
